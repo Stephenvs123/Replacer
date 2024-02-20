@@ -62,7 +62,7 @@
                     <Label Content="Count per line" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="85"/>
                     <Label Content="Items" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Height="26" Width="38"/>
                     <RichTextBox x:Name="rtcLineIn" Margin="10,95,10,10"/>
-                    <Button Content="Process" Grid.Column="1" Margin="10,10,10,0" VerticalAlignment="Top" Click="Button_Click" Height="20"/>
+                    <Button x:Name="ProcLineItem" Content="Process" Grid.Column="1" Margin="10,10,10,0" VerticalAlignment="Top" Click="ProcLineItem_Click" Height="20"/>
                     <RichTextBox x:Name="rtcLineOut" Grid.Column="2" Margin="10" >
                         <FlowDocument>
                             <Paragraph>
@@ -71,7 +71,7 @@
                         </FlowDocument>
                     </RichTextBox>
                     <CheckBox x:Name="cbRemoveLast" Content="Remove last comma" Grid.Column="1" Margin="10,38,10,301" IsChecked="True"/>
-                    <CheckBox x:Name="cbDefaultBig" Content="Default items for large list" Grid.Column="1" Margin="10,95,10,0" VerticalAlignment="Top" Height="43"/>
+                    <CheckBox x:Name="cbDefaultBig" Content="Handle large list" Grid.Column="1" Margin="10,95,10,0" VerticalAlignment="Top" Height="43"/>
                 </Grid>
             </TabItem>
         </TabControl>

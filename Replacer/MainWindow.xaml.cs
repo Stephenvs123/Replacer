@@ -25,61 +25,22 @@ namespace Replacer
             InitializeComponent();
         }
 
-        private void Replace()
-        {
-            List<string> strlist = new List<string>();
-            string param = textBox1.Text;
-
-            string richTextList = new TextRange(rtbList.Document.ContentStart, rtbList.Document.ContentEnd).Text;
-            string[] listLines = richTextList.Split(
-                new[] { Environment.NewLine },
-                StringSplitOptions.None
-            );
-            string richTextQry = new TextRange(rtbQuery.Document.ContentStart, rtbQuery.Document.ContentEnd).Text;
-            string[] qryLines = richTextQry.Split(
-                new[] { Environment.NewLine },
-                StringSplitOptions.None
-            );
-
-            foreach (var item in listLines)
-            {
-                if (item != "")
-                {
-                    strlist.Add(item);
-                }
-            }
-
-            foreach (var strName in strlist)
-            {
-                foreach (var item in qryLines)
-                {
-                    if (item == "")
-                    {
-                        continue;
-                    }
-                    if ((bool)checkBox1.IsChecked)
-                    {
-                        string str = item.Replace(@"[]", @"[" + strName + @"]");
-                        rtbResult.Document.Blocks.Add(new Paragraph(new Run(str + Environment.NewLine)));
-                    }
-                    else
-                    {
-                        string str = item.Replace(param, strName);
-                        rtbResult.Document.Blocks.Add(new Paragraph(new Run(str)));
-                    }
-
-                }
-            }
-        }
-
         private void Commit_Click(object sender, RoutedEventArgs e)
         {
             rtbResult.Document.Blocks.Clear();
-            Replace();
+            rtbResult.Document.Blocks.Add(Helpers.Replace(
+                new ReplaceDto()
+                {
+                    param = textBox1.Text,
+                    richTextList = new TextRange(rtbList.Document.ContentStart, rtbList.Document.ContentEnd).Text,
+                    richTextQry = new TextRange(rtbQuery.Document.ContentStart, rtbQuery.Document.ContentEnd).Text,
+                    sql = (bool)checkBox1.IsChecked
+                }));
+
             if (cbPerformLine.IsChecked == true)
             {
                 SetText();
-                LineItem();
+                ProcLineItemMain();
                 tbcMain.SelectedIndex++;
                 rtcLineOut.Focus();
             }
@@ -113,9 +74,22 @@ namespace Replacer
             rtbQuery.Document.Blocks.Clear();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ProcLineItem_Click(object sender, RoutedEventArgs e)
         {
-            LineItem();
+            ProcLineItemMain();
+        }
+
+        private void ProcLineItemMain()
+        {
+            rtcLineOut.Document.Blocks.Clear();
+            rtcLineOut.Document.Blocks.Add(Helpers.LineItem(
+                new LineItemDto()
+                {
+                    input = new TextRange(rtcLineIn.Document.ContentStart, rtcLineIn.Document.ContentEnd).Text,
+                    bigList = cbDefaultBig.IsChecked == true,
+                    removeLast = cbRemoveLast.IsChecked == true,
+                    lineCount = txtLineCount.Text
+                }));
         }
 
         private void SetText()
@@ -124,66 +98,6 @@ namespace Replacer
             rtcLineIn.Document.Blocks.Clear();
             string input = new TextRange(rtbResult.Document.ContentStart, rtbResult.Document.ContentEnd).Text;
             rtcLineIn.Document.Blocks.Add(new Paragraph(new Run(input)));
-        }
-
-        private void LineItem()
-        {
-            int lineCount = 0, count = 0;
-            string input = string.Empty, Output = string.Empty, temp = string.Empty;
-
-            if (!int.TryParse(txtLineCount.Text, out lineCount))
-            {
-                MessageBox.Show("Please enter a number for the line count");
-                return;
-            }
-
-            input = new TextRange(rtcLineIn.Document.ContentStart, rtcLineIn.Document.ContentEnd).Text;
-            input = input.Replace("\n", string.Empty);
-            input = input.Replace("\r", string.Empty);
-            var list = input.Split(',');
-
-            if (cbDefaultBig.IsChecked == true && lineCount != 4)
-            {
-                int c = list.Count();
-                if (c <= 20)
-                {
-                    lineCount = 4;
-                }
-                if (c > 20 && c <= 50 )
-                {
-                    lineCount = 10;
-                }
-                if (c > 50)
-                {
-                    lineCount = 20;
-                }
-            }
-
-            foreach (var item in list)
-            {
-                if (item == "")
-                {
-                    break;
-                }
-                if (count == lineCount)
-                {
-                    Output += temp + '\n';
-                    temp = string.Empty;
-                    count = 0;
-                }
-                temp += item + ",";
-                count++;
-            }
-            Output += temp + '\n';
-
-            if (cbRemoveLast.IsChecked == true)
-            {
-                Output = Output.Remove(Output.Count() - 2);
-            }
-
-            rtcLineOut.Document.Blocks.Clear();
-
-            rtcLineOut.Document.Blocks.Add(new Paragraph(new Run(Output)));
         }
     }
 }
